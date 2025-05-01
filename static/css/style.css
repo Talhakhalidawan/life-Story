@@ -1,0 +1,192 @@
+html {
+    height: 98%;
+    max-height: 100%;
+}
+
+body {
+    height: 100%;
+    
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+.app-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.sidenav {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    right: -250px;
+    background-color: #00141f;
+    overflow-x: hidden;
+    transition: transform 0.3s ease;
+    padding-top: 60px;
+}
+.sidenav.shadow-active {
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+body.nav-open .sidenav {
+    transform: translateX(-250px);
+}
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    left: 25px;
+    font-size: 36px;
+    margin-right: 50px;
+    color: #818181;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.sidenav .logout-container {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+}
+
+
+body.nav-open .nav-toggle-btn {
+    transform: translateX(250px);
+}
+
+.main-content {
+    width: 100%;
+    transition: width 0.3s ease, padding-left 0.3s ease;
+    padding: 16px;
+}
+
+/* Small screens - overlay behavior */
+@media screen and (max-width: 991px) {
+    body.nav-open .main-content {
+        padding-right: 16px;
+        width: 100%;
+    }
+}
+
+/* Large screens - push content behavior */
+@media screen and (min-width: 992px) {
+    body.nav-open .main-content {
+        padding-right: 266px;
+        width: 100%;
+    }
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+
+.btn-1 {
+    box-shadow: 4px 4px 4px #000b11, -4px -4px 4px #001d2c;
+    border-radius: 20px;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Hover styles */
+.btn-1:hover {
+    box-shadow: inset 4px 4px 4px #000b11, inset -4px -4px 4px #001d2c;
+}
+
+
+.btn-2 {
+    box-shadow: inset 4px 4px 4px #000b11, inset -4px -4px 4px #001d2c;
+    border-radius: 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover styles */
+.btn-2:hover {
+    box-shadow: 4px 4px 4px #000b11, -4px -4px 4px #001d2c;
+}
+
+/* Custom styles for Bootstrap offcanvas */
+.offcanvas {
+    background-color: #00141f;
+}
+
+.offcanvas-header .btn-close {
+    color: white;
+    filter: invert(1) brightness(200%);
+}
+
+.offcanvas-title {
+    color: white;
+}
+
+/* Remove button outlines */
+.btn,
+.navbar-toggler,
+.navbar-toggler:focus,
+.btn-close:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+}
+
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem;
+}
+
+.navbar {
+    background-color: transparent;
+    color: #ffd500;
+}
+.text-gradient-hover {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: white;
+    transition: all 0.5s ease;
+    background: linear-gradient(90deg, #00bfff, #ffa200, #f6ff00);
+    background-size: 200%;
+    background-position: left;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: white;
+}
+
+.text-gradient-hover svg path {
+    transition: all 0.5s ease;
+    fill: white; /* default fill */
+}
+
+.text-gradient-hover:hover svg path {
+    fill: url(#textGradient); /* Use the gradient inside SVG on hover */
+}
+
+.text-gradient-hover:hover {
+    background-position: right;
+    -webkit-text-fill-color: transparent; /* text becomes gradient */
+}
+
+/* Active state for current page */
+.nav-active {
+    background-position: right !important;
+    -webkit-text-fill-color: transparent !important;
+    box-shadow: 4px 4px 4px #000b11, -4px -4px 4px #001d2c !important;
+}
+
+.nav-active svg path {
+    fill: url(#textGradient) !important;
+}
+
+/* Active button on hover changes to inset shadow */
+.nav-active:hover {
+    box-shadow: inset 4px 4px 4px #000b11, inset -4px -4px 4px #001d2c !important;
+}

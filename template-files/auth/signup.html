@@ -1,0 +1,589 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        background-color: #00141f !important;
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active{
+        transition: background-color 5000s ease-in-out 0s;
+    }
+        
+    .form-input-field {
+        width: 100%;
+        min-height: 50px;
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+        padding: 12px 50px 12px 15px;
+        background: transparent;
+        box-shadow: inset 4px 4px 4px #000b11, inset -4px -4px 4px #001d2c;
+        border-radius: 20px;
+        border: none;
+        resize: none;
+        outline: none !important;
+        color: white;
+        font-size: 16px;
+        line-height: 1.4;
+        display: block;
+        font-weight: bold;
+    }
+    .form-input-field::placeholder {
+        color: #aaa;
+    }
+    .btn-form {
+        box-shadow: 4px 4px 4px #000b11, -4px -4px 4px #001d2c;
+        border-radius: 20px;
+        border: none;
+        height: 50px;
+        width: 100%;
+        background: transparent;
+        color: white;
+        font-size: 16px;
+        line-height: 1.4;
+        font-weight: bold;
+        transition: all 0.3s ease; /* Reduced transition time for better responsiveness */
+    }
+    .btn-form:active {
+        box-shadow: inset 6px 6px 6px #000b11, inset -6px -6px 6px #001d2c;
+    }
+    .btn-form:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .text-gradient {
+        color: white;
+        transition: all 1s ease;
+        background: linear-gradient(90deg, #00bfff, #ffa200, #f6ff00);
+        background-position: left;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: white;
+    }
+    .text-gradient:hover {
+        background-position: right;
+        -webkit-text-fill-color: transparent; /* text becomes gradient */
+    }
+    
+    .error-feedback {
+        color: #ff6b6b;
+        font-size: 14px;
+        margin-top: 5px;
+        margin-left: 10px;
+        display: none;
+    }
+    
+    .success-feedback {
+        color: #2ed573;
+        font-size: 14px;
+        margin-top: 5px;
+        margin-left: 10px;
+        display: none;
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Password strength colors */
+    .strength-weak { color: #ff6b6b; }
+    .strength-medium { color: #ffd500; }
+    .strength-strong { color: #2ed573; }
+    
+    /* Password requirements list */
+    .password-requirements {
+        margin-top: 8px;
+        margin-left: 10px;
+        font-size: 12px;
+        color: #aaa;
+    }
+    
+    .password-requirements ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 5px;
+        margin-bottom: 0;
+    }
+    
+    .password-requirements li {
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .password-requirements li.met {
+        color: #2ed573;
+    }
+    
+    /* Input container to ensure eye icon stays in place */
+    .input-container {
+        position: relative;
+    }
+    
+    /* Fixed position for eye icon */
+    .toggle-password-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #aaa;
+        z-index: 2;
+    }
+    
+    /* Floating notification style */
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        min-width: 250px;
+        max-width: 350px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 9999;
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    .notification-error {
+        background-color: rgba(255, 107, 107, 0.9);
+        color: white;
+    }
+    
+    .notification-success {
+        background-color: rgba(46, 213, 115, 0.9);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container my-auto" style="max-width: 600px;">
+    <form id="signupForm">
+        {% csrf_token %}
+
+        <div class="my-4">
+            <h2 class="text-light text-center fw-bold">Signup</h2>
+        </div>
+        <div class="mb-3">
+          <input type="text" name="username" placeholder="Username" class="form-input-field px-3" id="username" data-validation="username" required>
+          <div class="error-feedback" id="usernameError"></div>
+          <div class="success-feedback" id="usernameSuccess"></div>
+        </div>
+        <div class="mb-3 row g-3">
+          <div class="col">
+            <input type="text" name="first_name" placeholder="First Name" class="form-input-field px-3" id="firstName" required>
+            <div class="error-feedback" id="firstNameError"></div>
+          </div>
+          <div class="col">
+            <input type="text" name="last_name" placeholder="Last Name" class="form-input-field px-3" id="lastName" required>
+            <div class="error-feedback" id="lastNameError"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="input-container">
+              <input type="password" name="password" placeholder="Password" class="form-input-field px-3" id="password" data-validation="password" required>
+              <button type="button" class="toggle-password-btn" id="togglePassword">
+                  <i class="bi bi-eye text-white" id="eyeIcon"></i>
+              </button>
+          </div>
+          <div class="error-feedback" id="passwordError"></div>
+          <div class="password-requirements" id="passwordRequirements">
+            <span id="requirementsText"></span>
+          </div>
+        </div>
+        <button type="submit" id="submitBtn" class="btn-form text-gradient" disabled>
+            <span class="loading-spinner" id="signupSpinner"></span>
+            <span id="signupBtnText">Create Account</span>
+        </button>
+    </form>
+
+    <div class="mt-4">
+        <p class="m-0 p-0 text-center text-white">Already have an account? <a href="{% url 'login' %}" class="text-gradient">Login</a></p>
+    </div>
+    
+    <!-- Notification container -->
+    <div id="notification" class="notification"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const signupForm = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const signupSpinner = document.getElementById('signupSpinner');
+    const signupBtnText = document.getElementById('signupBtnText');
+    const notification = document.getElementById('notification');
+    
+    // Password requirement elements
+    const requirementsText = document.getElementById('requirementsText');
+    
+    // Form validation tracking
+    const validationState = {
+      username: false,
+      password: false,
+      firstName: false,
+      lastName: false
+    };
+    
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('bi-eye');
+        eyeIcon.classList.add('bi-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('bi-eye-slash');
+        eyeIcon.classList.add('bi-eye');
+      }
+      
+      // Add animation
+      eyeIcon.style.transition = 'transform 0.3s ease';
+      eyeIcon.style.transform = 'scale(1.2)';
+      
+      setTimeout(() => {
+        eyeIcon.style.transform = 'scale(1)';
+      }, 300);
+    });
+    
+    // Username validation with API check
+    const usernameInput = document.getElementById('username');
+    const usernameError = document.getElementById('usernameError');
+    const usernameSuccess = document.getElementById('usernameSuccess');
+    let usernameTimeout;
+    
+    usernameInput.addEventListener('input', function() {
+      const username = this.value.trim();
+      
+      // Reset validation states
+      usernameError.style.display = 'none';
+      usernameSuccess.style.display = 'none';
+      validationState.username = false;
+      
+      // Clear any existing timeout
+      clearTimeout(usernameTimeout);
+      
+      if (!username) {
+        usernameError.textContent = 'Username is required';
+        usernameError.style.display = 'block';
+        updateSubmitButton();
+        return;
+      }
+      
+      // Add delay before checking (debounce)
+      usernameTimeout = setTimeout(() => {
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Check username availability
+        fetch("/auth/api/check-username/", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.valid) {
+            usernameSuccess.textContent = data.message;
+            usernameSuccess.style.display = 'block';
+            validationState.username = true;
+          } else {
+            usernameError.textContent = data.message;
+            usernameError.style.display = 'block';
+            validationState.username = false;
+          }
+          updateSubmitButton();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          usernameError.textContent = 'Error checking username';
+          usernameError.style.display = 'block';
+          validationState.username = false;
+          updateSubmitButton();
+        });
+      }, 500);
+    });
+    
+    // Password strength validation and requirements checking
+    const passwordError = document.getElementById('passwordError');
+    const strengthText = document.getElementById('strengthText');
+    let passwordTimeout;
+    
+    passwordInput.addEventListener('input', function() {
+      const password = this.value.trim();
+      
+      // Reset validation states
+      passwordError.style.display = 'none';
+      validationState.password = false;
+      
+      // Check requirements
+      checkPasswordRequirements(password);
+
+      // Clear any existing timeout
+      clearTimeout(passwordTimeout);
+      
+      // Add delay before checking with API (debounce)
+      passwordTimeout = setTimeout(() => {
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Check password strength with custom validation that doesn't require uppercase
+        const isPasswordValid = password.length >= 8 && 
+                               /[a-z]/.test(password) && 
+                               /[0-9]/.test(password);
+        
+        if (isPasswordValid) {
+          // Password meets all requirements
+          strengthText.textContent = 'Strong';
+          strengthText.className = 'strength-strong';
+          validationState.password = true;
+          updateSubmitButton();
+        } else {
+          // We'll handle messaging through the requirements text
+          validationState.password = false;
+          updateSubmitButton();
+        }
+      }, 500);
+    });
+    
+    // Function to check password requirements and update UI
+    function checkPasswordRequirements(password) {
+      // Track requirements
+      const hasLength = password.length >= 8;
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasUppercase = /[A-Z]/.test(password); // Optional but gives bonus points
+      
+      // Update requirements text based on what's missing
+      if (!password) {
+        requirementsText.innerHTML = '';
+        requirementsText.className = '';
+        return;
+      }
+      
+      let missing = [];
+      if (!hasLength) missing.push('8 characters');
+      if (!hasLowercase) missing.push('lowercase letter');
+      if (!hasNumber) missing.push('number');
+      
+      if (missing.length === 0) {
+        requirementsText.innerHTML = 'Password requirements met';
+        requirementsText.className = 'strength-strong';
+        submitBtn.disabled = false;
+      } else {
+        requirementsText.innerHTML = 'Still needs: ' + missing.join(', ');
+        requirementsText.className = 'strength-weak';
+      }
+      
+      // Update strength indicator text and color
+      // Uppercase is optional but gives bonus points for strength
+      let meetsCount = [
+        hasLength,
+        hasLowercase,
+        hasNumber
+      ].filter(Boolean).length;
+      
+      if (hasUppercase) meetsCount += 0.5; // Bonus for uppercase
+      
+      // Update strength indicator text and color
+      if (meetsCount < 1) {
+        strengthText.textContent = 'Very Weak';
+        strengthText.className = 'strength-weak';
+      } else if (meetsCount < 2) {
+        strengthText.textContent = 'Weak';
+        strengthText.className = 'strength-weak';
+      } else if (meetsCount < 3) {
+        strengthText.textContent = 'Medium';
+        strengthText.className = 'strength-medium';
+      } else {
+        strengthText.textContent = 'Strong';
+        strengthText.className = 'strength-strong';
+      }
+    }
+    
+    // First name validation
+    const firstNameInput = document.getElementById('firstName');
+    const firstNameError = document.getElementById('firstNameError');
+    
+    firstNameInput.addEventListener('input', function() {
+      const firstName = this.value.trim();
+      
+      firstNameError.style.display = 'none';
+      
+      if (!firstName) {
+        firstNameError.textContent = 'First name is required';
+        firstNameError.style.display = 'block';
+        validationState.firstName = false;
+      } else {
+        validationState.firstName = true;
+      }
+      
+      updateSubmitButton();
+    });
+    
+    // Last name validation
+    const lastNameInput = document.getElementById('lastName');
+    const lastNameError = document.getElementById('lastNameError');
+    
+    lastNameInput.addEventListener('input', function() {
+      const lastName = this.value.trim();
+      
+      lastNameError.style.display = 'none';
+      
+      if (!lastName) {
+        lastNameError.textContent = 'Last name is required';
+        lastNameError.style.display = 'block';
+        validationState.lastName = false;
+      } else {
+        validationState.lastName = true;
+      }
+      
+      updateSubmitButton();
+    });
+    
+    // Function to enable/disable submit button
+    function updateSubmitButton() {
+      if (validationState.username && validationState.password && 
+          validationState.firstName && validationState.lastName) {
+        submitBtn.disabled = false;
+      } else {
+        submitBtn.disabled = true;
+      }
+    }
+    
+    // Handle form submission
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Show loading state
+      submitBtn.disabled = true;
+      signupSpinner.style.display = 'inline-block';
+      signupBtnText.textContent = 'Creating account...';
+      
+      // Get form data
+      const username = usernameInput.value.trim();
+      const firstName = firstNameInput.value.trim();
+      const lastName = lastNameInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      // Get CSRF token
+      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      
+      // Send signup request
+      fetch('/auth/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          username: username,
+          first_name: firstName,
+          last_name: lastName,
+          password: password
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Show success notification
+          showNotification('Account created successfully. Redirecting...', 'success');
+
+          submitBtn.disabled = true;
+          signupSpinner.style.display = 'inline-block';
+          signupBtnText.textContent = 'Loading...';
+
+
+          
+          // Redirect to home page
+          setTimeout(() => {
+            signupBtnText.textContent = 'kindly reload page';
+
+            togglePassword.disabled = true;
+            togglePassword.style.opacity = '0';
+            passwordInput.type = 'password';
+            passwordInput.value = ''
+            
+            window.location.href = '/';
+          }, 2000);
+        } else {
+          // Show error notification
+          showNotification(data.message || 'Failed to create account. Please try again.', 'error');
+          
+          // Reset loading state
+          submitBtn.disabled = true; // Keep disabled until validation passes again
+          signupSpinner.style.display = 'none';
+          signupBtnText.textContent = 'Create Account';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+        
+        // Reset loading state
+        submitBtn.disabled = true; // Keep disabled until validation passes again
+        signupSpinner.style.display = 'none';
+        signupBtnText.textContent = 'Create Account';
+      });
+    });
+    
+    // Function to show notifications
+    let notificationTimeout;
+    function showNotification(message, type) {
+      // Clear any existing timeout
+      clearTimeout(notificationTimeout);
+      
+      // Set notification content and style
+      notification.textContent = message;
+      notification.className = 'notification';
+      notification.classList.add(`notification-${type}`);
+      
+      // Show notification
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+      
+      // Hide notification after delay
+      notificationTimeout = setTimeout(() => {
+        notification.classList.remove('show');
+      }, 5000);
+    }
+  });
+</script>
+{% endblock %}

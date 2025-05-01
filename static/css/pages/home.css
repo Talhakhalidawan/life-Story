@@ -1,0 +1,144 @@
+
+.fs-8 {
+    font-size: 0.75rem;
+}
+.fs-7 {
+    font-size: 0.85rem;
+}
+.container {
+    overflow-x: auto;
+    padding: 20px 0;
+}
+
+.timeline-container {
+    display: flex;
+    min-width: max-content;
+    padding: 20px 0;
+}
+
+.time-line-item {
+    position: relative;
+    width: 250px;
+    margin-right: 50px;
+}
+
+.time-line-item-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.upper-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+}
+
+.main-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(94, 128, 128, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    top: 0%;
+}
+
+.main-icon i {
+    font-size: 32px;
+}
+
+.secondary-icons {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    gap: 10px;
+}
+
+.vertical-line {
+    position: absolute;
+    width: 3px;
+    left: 50%;
+    height: 70px;
+    z-index: 1;
+    border-top-right-radius: 12px;
+    border-top-left-radius: 12px;
+}
+
+.circle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.secondary-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.secondary-icon i {
+    font-size: 18px;
+    color: #212529;
+}
+
+.horizontal-line-container {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    margin: 10px 0;
+}
+
+.horizontal-line {
+    position: absolute;
+    height: 15px;
+    background: linear-gradient(to right, #17a2b8, #107f91);
+    width: 300px;
+    left: -25px;
+    z-index: 1;
+}
+
+.bottom-content {
+    text-align: center;
+    padding: 10px;
+    z-index: 2;
+}
+
+.bottom-content h2 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.bottom-content p {
+    margin: 0;
+}
+.parent-timeline::-webkit-scrollbar {
+    height: 8px;
+}
+.parent-timeline::-webkit-scrollbar-track {
+    background: transparent;
+}
+.parent-timeline::-webkit-scrollbar-thumb {
+    background-color: #002a3e;
+    border-radius: 10px;
+}
+@media (max-width: 768px) {
+    .parent-timeline::-webkit-scrollbar {
+        display: none;
+    }
+    .parent-timeline {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}

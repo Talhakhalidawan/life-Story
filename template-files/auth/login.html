@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        background-color: #00141f !important;
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active{
+        transition: background-color 5000s ease-in-out 0s;
+    }
+        
+    .form-input-field {
+        width: 100%;
+        min-height: 50px;
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+        padding: 12px 50px 12px 15px;
+        background: transparent;
+        box-shadow: inset 4px 4px 4px #000b11, inset -4px -4px 4px #001d2c;
+        border-radius: 20px;
+        border: none;
+        resize: none;
+        outline: none !important;
+        color: white;
+        font-size: 16px;
+        line-height: 1.4;
+        display: block;
+        font-weight: bold;
+    }
+    .form-input-field::placeholder {
+        color: #aaa;
+    }
+    .btn-form {
+        box-shadow: 4px 4px 4px #000b11, -4px -4px 4px #001d2c;
+        border-radius: 20px;
+        border: none;
+        height: 50px;
+        width: 100%;
+        background: transparent;
+        color: white;
+        font-size: 16px;
+        line-height: 1.4;
+        font-weight: bold;
+        transition: all 0.3s ease; /* Reduced transition time for better responsiveness */
+    }
+    .btn-form:active {
+        box-shadow: inset 6px 6px 6px #000b11, inset -6px -6px 6px #001d2c;
+    }
+    .btn-form:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .text-gradient {
+        color: white;
+        transition: all 1s ease;
+        background: linear-gradient(90deg, #00bfff, #ffa200, #f6ff00);
+        background-position: left;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: white;
+    }
+    .text-gradient:hover {
+        background-position: right;
+        -webkit-text-fill-color: transparent; /* text becomes gradient */
+    }
+    
+    .error-feedback {
+        color: #ff6b6b;
+        font-size: 14px;
+        margin-top: 5px;
+        margin-left: 10px;
+        display: none;
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Input container to ensure eye icon stays in place */
+    .input-container {
+        position: relative;
+    }
+    
+    /* Fixed position for eye icon */
+    .toggle-password-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #aaa;
+        z-index: 2;
+    }
+    
+    /* Floating notification style */
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        min-width: 250px;
+        max-width: 350px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 9999;
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    .notification-error {
+        background-color: rgba(255, 107, 107, 0.9);
+        color: white;
+    }
+    
+    .notification-success {
+        background-color: rgba(46, 213, 115, 0.9);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container my-auto" style="max-width: 600px;">
+    <form id="loginForm">
+        {% csrf_token %}
+
+        <div class="my-4">
+            <h2 class="text-light text-center fw-bold">Login</h2>
+        </div>
+        <div class="mb-3">
+          <input type="text" name="username" placeholder="Username" class="form-input-field px-3" id="username" required>
+          <div class="error-feedback" id="usernameError"></div>
+        </div>
+        <div class="mb-3">
+          <div class="input-container">
+              <input type="password" name="password" placeholder="Password" class="form-input-field px-3" id="password" required>
+              <button type="button" class="toggle-password-btn" id="togglePassword">
+                  <i class="bi bi-eye text-white" id="eyeIcon"></i>
+              </button>
+          </div>
+          <div class="error-feedback" id="passwordError"></div>
+        </div>
+        <button type="submit" id="submitBtn" class="btn-form text-gradient">
+            <span class="loading-spinner" id="loginSpinner"></span>
+            <span id="loginBtnText">Login</span>
+        </button>
+    </form>
+
+    <div class="mt-4">
+        <p class="m-0 p-0 text-center text-white">Don't have an account? <a href="{% url 'signup' %}" class="text-gradient">Signup</a></p>
+    </div>
+    
+    <!-- Notification container -->
+    <div id="notification" class="notification"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const loginBtnText = document.getElementById('loginBtnText');
+    const notification = document.getElementById('notification');
+    
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('bi-eye');
+        eyeIcon.classList.add('bi-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('bi-eye-slash');
+        eyeIcon.classList.add('bi-eye');
+      }
+      
+      // Add animation
+      eyeIcon.style.transition = 'transform 0.3s ease';
+      eyeIcon.style.transform = 'scale(1.2)';
+      
+      setTimeout(() => {
+        eyeIcon.style.transform = 'scale(1)';
+      }, 300);
+    });
+    
+    // Username validation
+    const usernameInput = document.getElementById('username');
+    const usernameError = document.getElementById('usernameError');
+    
+    usernameInput.addEventListener('input', function() {
+      const username = this.value.trim();
+      
+      usernameError.style.display = 'none';
+      
+      if (!username) {
+        usernameError.textContent = 'Username is required';
+        usernameError.style.display = 'block';
+      }
+    });
+    
+    // Password validation
+    const passwordError = document.getElementById('passwordError');
+    
+    passwordInput.addEventListener('input', function() {
+      const password = this.value.trim();
+      
+      passwordError.style.display = 'none';
+      
+      if (!password) {
+        passwordError.textContent = 'Password is required';
+        passwordError.style.display = 'block';
+      }
+    });
+    
+    // Handle form submission
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Get form data
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      // Validate form data
+      let isValid = true;
+      
+      if (!username) {
+        usernameError.textContent = 'Username is required';
+        usernameError.style.display = 'block';
+        isValid = false;
+      }
+      
+      if (!password) {
+        passwordError.textContent = 'Password is required';
+        passwordError.style.display = 'block';
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      // Show loading state
+      submitBtn.disabled = true;
+      loginSpinner.style.display = 'inline-block';
+      loginBtnText.textContent = 'Logging in...';
+      
+      // Get CSRF token
+      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      
+      // Send login request
+      fetch('/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Show success notification
+          showNotification('Login successful. Redirecting...', 'success');
+
+          togglePassword.disabled = true;
+          togglePassword.style.opacity = '0';
+          passwordInput.type = 'password';
+          passwordInput.value = ''
+
+          
+          submitBtn.disabled = false;
+          loginBtnText.textContent = 'Loading...';
+          
+          // Redirect to home page
+          setTimeout(() => {
+
+            submitBtn.disabled = false;
+            loginSpinner.style.display = 'none';
+            loginBtnText.textContent = 'Login';
+            window.location.href = '/';
+
+          }, 2000);
+        } else {
+          // Show error notification
+          showNotification(data.message || 'Invalid username or password.', 'error');
+          
+          // Reset loading state
+          submitBtn.disabled = false;
+          loginSpinner.style.display = 'none';
+          loginBtnText.textContent = 'Login';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred. Please try reloading page.', 'error');
+        
+        // Reset loading state
+        submitBtn.disabled = false;
+        loginSpinner.style.display = 'none';
+        loginBtnText.textContent = 'Login';
+      });
+    });
+    
+    // Function to show notifications
+    let notificationTimeout;
+    function showNotification(message, type) {
+      // Clear any existing timeout
+      clearTimeout(notificationTimeout);
+      
+      // Set notification content and style
+      notification.textContent = message;
+      notification.className = 'notification';
+      notification.classList.add(`notification-${type}`);
+      
+      // Show notification
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+      
+      // Hide notification after delay
+      notificationTimeout = setTimeout(() => {
+        notification.classList.remove('show');
+      }, 5000);
+    }
+  });
+</script>
+{% endblock %}

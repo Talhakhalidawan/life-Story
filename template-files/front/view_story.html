@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<style>
+    body {
+        background-color: #00141f !important;
+    }
+    
+    .story-container {
+        background-color: #00141f;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 4px 4px 4px #000b11, -4px -4px 4px #001d2c;
+    }
+    
+    .story-title {
+        color: #fff;
+        font-size: 32px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .story-date {
+        color: #aaa;
+        font-size: 14px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .story-content {
+        color: #ddd;
+        font-size: 18px;
+        line-height: 1.8;
+        white-space: pre-line;
+        margin-bottom: 30px;
+    }
+    
+    .back-button {
+        background-color: transparent;
+        color: #64B5F6;
+        border: 1px solid #64B5F6;
+        border-radius: 10px;
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+        background-color: #64B5F6;
+        color: #00141f;
+    }
+    
+    .entities-section {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #001d2c;
+    }
+    
+    .entities-title {
+        color: #fff;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .entity-card {
+        background-color: #00141f;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: inset 2px 2px 4px #000b11, inset -2px -2px 4px #001d2c;
+    }
+    
+    .entity-name {
+        color: #64B5F6;
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+    
+    .entity-info {
+        color: #ddd;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pt-5" style="max-width: 800px;">
+    <div class="mb-4">
+        <a href="{% url 'my_stories' %}" class="btn back-button">
+            &larr; Back to My Stories
+        </a>
+    </div>
+    
+    <div class="story-container">
+        <h1 class="story-title">{{ story.title }}</h1>
+        <div class="story-date">Created on {{ story.created_at|date:"F d, Y" }}</div>
+        
+        <div class="story-content">{{ story.content }}</div>
+        
+        <!-- Display related entities if they exist -->
+        {% if story.people.exists or story.locations.exists or story.emotions.exists or story.events.exists %}
+        <div class="entities-section">
+            <h2 class="entities-title">Key Elements of Your Story</h2>
+            
+            {% if story.people.exists %}
+            <h3 class="mt-4 mb-3 text-white">People</h3>
+            <div class="row">
+                {% for person in story.people.all %}
+                <div class="col-md-6 mb-3">
+                    <div class="entity-card">
+                        <div class="entity-name">{{ person.name }}</div>
+                        {% if person.relation %}
+                        <div class="entity-info"><strong>Relation:</strong> {{ person.relation }}</div>
+                        {% endif %}
+                        {% if person.location %}
+                        <div class="entity-info"><strong>Location:</strong> {{ person.location }}</div>
+                        {% endif %}
+                        {% if person.about %}
+                        <div class="entity-info"><strong>About:</strong> {{ person.about }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if story.locations.exists %}
+            <h3 class="mt-4 mb-3 text-white">Locations</h3>
+            <div class="row">
+                {% for location in story.locations.all %}
+                <div class="col-md-6 mb-3">
+                    <div class="entity-card">
+                        <div class="entity-name">{{ location.name }}</div>
+                        {% if location.description %}
+                        <div class="entity-info">{{ location.description }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if story.emotions.exists %}
+            <h3 class="mt-4 mb-3 text-white">Emotions</h3>
+            <div class="row">
+                {% for emotion in story.emotions.all %}
+                <div class="col-md-4 mb-3">
+                    <div class="entity-card">
+                        <div class="entity-name">{{ emotion.name }}</div>
+                        {% if emotion.description %}
+                        <div class="entity-info">{{ emotion.description }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if story.events.exists %}
+            <h3 class="mt-4 mb-3 text-white">Key Events</h3>
+            <div class="row">
+                {% for event in story.events.all %}
+                <div class="col-md-6 mb-3">
+                    <div class="entity-card" {% if event.color %}style="border-left: 4px solid {{event.color}};"{% endif %}>
+                        <div class="entity-name">{{ event.title }}</div>
+                        {% if event.description %}
+                        <div class="entity-info"><strong>Description:</strong> {{ event.description }}</div>
+                        {% endif %}
+                        {% if event.location %}
+                        <div class="entity-info"><strong>Location:</strong> {{ event.location.name }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
